@@ -416,6 +416,8 @@ figure.tv{margin:0}
 .case-media{position:relative}
 .case-media .ba{aspect-ratio:4/3}
 .case-media .ba-tag{display:none}
+.case-media.portrait{max-width:430px;margin-inline:auto}
+.case-media .tv{width:100%}
 .case-badge{position:absolute;top:14px;left:14px;z-index:6;display:inline-flex;align-items:center;gap:7px;background:var(--brass);color:#1a1407;font-family:'Archivo';font-weight:800;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:7px 13px;border-radius:999px;box-shadow:0 6px 18px -6px rgba(0,0,0,.5)}
 .case-badge svg{width:14px;height:14px}
 .case-copy .eyebrow{margin-bottom:14px}
