@@ -137,8 +137,9 @@ h1,h2,h3,h4{font-family:'Archivo',sans-serif;margin:0;line-height:1.08;letter-sp
 .svc::after{content:"";position:absolute;left:0;top:0;height:3px;width:0;background:var(--brass);transition:width .3s}
 .svc:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:#d4d8de}
 .svc:hover::after{width:100%}
-.svc-ic{width:50px;height:50px;border-radius:11px;background:var(--paper-2);display:grid;place-items:center;color:var(--ink);margin-bottom:18px}
-.svc-ic svg{width:26px;height:26px}
+.svc-ic{width:60px;height:60px;border-radius:15px;background:linear-gradient(150deg,var(--slate),var(--ink));color:var(--brass-hi);display:grid;place-items:center;margin-bottom:20px;box-shadow:0 12px 26px -12px rgba(20,23,29,.55),inset 0 0 0 1px rgba(205,170,104,.22);transition:background .25s,color .25s,transform .25s}
+.svc-ic svg{width:30px;height:30px;stroke-width:2.3}
+.svc:hover .svc-ic{background:linear-gradient(150deg,var(--brass-hi),var(--brass-lo));color:#fff;transform:translateY(-2px) scale(1.04)}
 .svc h3{font-size:17.5px;font-weight:700;margin-bottom:8px}
 .svc p{font-size:13.5px;color:var(--muted);margin:0 0 16px;line-height:1.5}
 .svc .svc-link{margin-top:auto;font-family:'Archivo';font-weight:700;font-size:13px;color:var(--brass-lo);display:inline-flex;align-items:center;gap:6px}
