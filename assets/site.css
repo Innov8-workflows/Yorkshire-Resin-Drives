@@ -34,6 +34,8 @@ h1,h2,h3,h4{font-family:'Archivo',sans-serif;margin:0;line-height:1.08;letter-sp
 .btn:active{transform:translateY(1px)}
 .btn-primary{background:var(--brass);color:#1a1407;border-color:var(--brass)}
 .btn-primary:hover{background:var(--brass-hi);border-color:var(--brass-hi)}
+.btn-wa{background:var(--wa);color:#fff;border-color:var(--wa)}
+.btn-wa:hover{background:#1eb858;border-color:#1eb858}
 .btn-ghost{background:transparent;color:var(--mist);border-color:rgba(255,255,255,.32)}
 .btn-ghost:hover{border-color:var(--mist);background:rgba(255,255,255,.06)}
 .btn-dark{background:var(--ink);color:#fff;border-color:var(--ink)}
@@ -416,6 +418,9 @@ figure.tv{margin:0}
 .fab svg{width:28px;height:28px}
 .fab-call{background:var(--brass);color:#1a1407}
 .fab-call::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid var(--brass);animation:pulse 2.4s ease-out infinite}
+.fab-wa{background:var(--wa);color:#fff}
+.fab-wa::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid var(--wa);animation:pulse 2.4s ease-out infinite}
+.fab-wa svg{width:30px;height:30px}
 @keyframes pulse{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.7);opacity:0}}
 
 /* ---------- REVEAL ---------- */

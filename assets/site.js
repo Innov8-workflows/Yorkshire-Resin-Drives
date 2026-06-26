@@ -123,16 +123,12 @@
     });
   });
 
-  /* ---------- CONTACT / QUOTE FORM ---------- */
+  /* ---------- CONTACT / QUOTE FORM -> WhatsApp ---------- */
   (function () {
     var form = document.getElementById('quoteForm');
     if (!form) return;
     var msg = form.querySelector('.form-msg');
-    var btn = form.querySelector('[type="submit"]');
-    var email = form.getAttribute('data-email') || '';
-    var key = (form.querySelector('input[name="access_key"]') || {}).value || '';
-    var keyOk = key && key.indexOf('REPLACE') === -1;
-
+    var wa = form.getAttribute('data-wa') || '';
     function show(type, text) {
       if (!msg) return;
       msg.className = 'form-msg ' + type;
@@ -143,36 +139,19 @@
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      if (form.querySelector('[name="botcheck"]') && form.querySelector('[name="botcheck"]').checked) return;
+      var hp = form.querySelector('[name="botcheck"]');
+      if (hp && hp.checked) return;
       var name = val('name'), phone = val('phone');
       if (!name || !phone) { show('err', 'Please add your name and phone number so we can get back to you.'); return; }
-
-      /* Fallback: no Web3Forms key set yet -> open the visitor's email client */
-      if (!keyOk) {
-        var body = 'Name: ' + name + '%0D%0APhone: ' + phone +
-          '%0D%0AEmail: ' + val('email') +
-          '%0D%0AArea / postcode: ' + val('area') +
-          '%0D%0AService: ' + val('service') +
-          '%0D%0ADetails: ' + val('message');
-        window.location.href = 'mailto:' + email + '?subject=' +
-          encodeURIComponent('Website quote request — ' + name) + '&body=' + body;
-        show('ok', 'Opening your email app with the details ready to send. Prefer to talk? Call us any time.');
-        return;
-      }
-
-      if (btn) { btn.disabled = true; btn.dataset.label = btn.textContent; btn.textContent = 'Sending…'; }
-      fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(Object.fromEntries(new FormData(form)))
-      }).then(function (r) { return r.json(); }).then(function (data) {
-        if (data.success) { form.reset(); show('ok', 'Thank you — your request has been sent. We\'ll be in touch shortly.'); }
-        else { show('err', 'Sorry, something went wrong. Please call or email us instead.'); }
-      }).catch(function () {
-        show('err', 'Sorry, something went wrong. Please call or email us instead.');
-      }).finally(function () {
-        if (btn) { btn.disabled = false; if (btn.dataset.label) btn.textContent = btn.dataset.label; }
-      });
+      var txt = 'Hi Yorkshire Resin Drives, I’d like a quote.\n\nName: ' + name + '\nPhone: ' + phone;
+      if (val('email')) txt += '\nEmail: ' + val('email');
+      if (val('area')) txt += '\nArea: ' + val('area');
+      if (val('service')) txt += '\nService: ' + val('service');
+      if (val('message')) txt += '\nDetails: ' + val('message');
+      txt += '\n\n(Sent from your website)';
+      window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(txt), '_blank');
+      show('ok', 'Opening WhatsApp with your details ready to send — just press send. Prefer to call? Our number is above.');
+      form.reset();
     });
   })();
 
@@ -210,16 +189,33 @@
       for (var i = 0; i < pages(); i++) {
         var b = document.createElement('button');
         b.type = 'button'; b.className = 'rev-dot'; b.setAttribute('aria-label', 'Go to slide ' + (i + 1));
-        (function (idx) { b.addEventListener('click', function () { track.scrollTo({ left: idx * step(), behavior: 'smooth' }); }); })(i);
+        (function (idx) { b.addEventListener('click', function () { track.scrollTo({ left: idx * step(), behavior: 'smooth' }); restart(); }); })(i);
         dotsWrap.appendChild(b); dots.push(b);
       }
       paint();
     }
-    if (prev) prev.addEventListener('click', function () { track.scrollBy({ left: -step(), behavior: 'smooth' }); });
-    if (next) next.addEventListener('click', function () { track.scrollBy({ left: step(), behavior: 'smooth' }); });
+    /* auto-slide */
+    var AUTO = 4500, timer = null;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function tick() {
+      var atEnd = Math.ceil(track.scrollLeft + track.clientWidth) >= track.scrollWidth - 4;
+      track.scrollTo({ left: atEnd ? 0 : track.scrollLeft + step(), behavior: 'smooth' });
+    }
+    function start() { if (reduce || pages() < 2 || timer) return; timer = setInterval(tick, AUTO); }
+    function stop() { if (timer) { clearInterval(timer); timer = null; } }
+    function restart() { stop(); setTimeout(start, 800); }
+
+    if (prev) prev.addEventListener('click', function () { track.scrollBy({ left: -step(), behavior: 'smooth' }); restart(); });
+    if (next) next.addEventListener('click', function () { track.scrollBy({ left: step(), behavior: 'smooth' }); restart(); });
     track.addEventListener('scroll', paint, { passive: true });
+    slider.addEventListener('mouseenter', stop);
+    slider.addEventListener('mouseleave', start);
+    slider.addEventListener('touchstart', stop, { passive: true });
+    slider.addEventListener('focusin', stop);
+    document.addEventListener('visibilitychange', function () { if (document.hidden) stop(); else start(); });
     var rt; addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(buildDots, 200); });
     buildDots();
+    start();
   });
 
   /* ---------- CURRENT YEAR ---------- */
