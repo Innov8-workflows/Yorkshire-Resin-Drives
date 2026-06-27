@@ -552,9 +552,18 @@ figure.tv{margin:0}
   .hero-meta{gap:14px}
 }
 @media(max-width:430px){
-  .svc-grid,.svc-grid.cols-3{grid-template-columns:1fr}
+  /* keep services + areas two-up to cut endless scrolling — compact the cards so a pair fits */
+  .svc-grid,.svc-grid.cols-3{grid-template-columns:repeat(2,1fr);gap:12px;margin-top:30px}
+  .svc{padding:16px 14px;border-radius:13px}
+  .svc-ic{width:44px;height:44px;border-radius:12px;margin-bottom:13px}
+  .svc-ic svg{width:23px;height:23px}
+  .svc h3{font-size:14.5px;margin-bottom:5px}
+  .svc p{font-size:12px;line-height:1.45;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .svc .svc-link{font-size:12px}
+  .loc-grid{grid-template-columns:repeat(2,1fr);gap:10px;margin-top:30px}
+  .loc-card{padding:13px 14px;font-size:13.5px;border-radius:11px;gap:8px}
+  .loc-card svg{width:15px;height:15px}
   .steps,.statbar{grid-template-columns:1fr}
-  .loc-grid{grid-template-columns:1fr}
   .row2{grid-template-columns:1fr}
   .subhero{padding:108px 0 44px}
 }
