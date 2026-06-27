@@ -166,6 +166,24 @@
     els.forEach(function (el) { io.observe(el); });
   })();
 
+  /* ---------- WHATSAPP CHAT WIDGET ---------- */
+  (function () {
+    var w = document.getElementById('waWidget');
+    if (!w) return;
+    var fab = document.getElementById('waFab');
+    var closeBtn = document.getElementById('waClose');
+    function set(open) {
+      w.classList.toggle('open', open);
+      if (fab) fab.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    if (fab) fab.addEventListener('click', function (e) { e.stopPropagation(); set(!w.classList.contains('open')); });
+    if (closeBtn) closeBtn.addEventListener('click', function (e) { e.stopPropagation(); set(false); });
+    var start = w.querySelector('.wa-start');
+    if (start) start.addEventListener('click', function () { setTimeout(function () { set(false); }, 400); });
+    document.addEventListener('click', function (e) { if (w.classList.contains('open') && !w.contains(e.target)) set(false); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') set(false); });
+  })();
+
   /* ---------- REVIEWS SLIDER ---------- */
   document.querySelectorAll('.rev-slider').forEach(function (slider) {
     var track = slider.querySelector('.rev-track');
