@@ -46,6 +46,17 @@
     paint(); reset();
   })();
 
+  /* ---------- HERO VIDEO (load only on larger screens; mobile keeps the poster for speed) ---------- */
+  (function () {
+    var hv = document.querySelectorAll('.hero-vid');
+    if (!hv.length) return;
+    if (!window.matchMedia('(min-width:701px)').matches) return; // phones stay on the poster image — no multi-MB video download
+    hv.forEach(function (v) {
+      var src = v.getAttribute('data-src');
+      if (src && !v.getAttribute('src')) { v.setAttribute('src', src); var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+    });
+  })();
+
   /* ---------- BEFORE / AFTER SLIDERS (all on page) ---------- */
   document.querySelectorAll('.ba').forEach(function (ba) {
     var before = ba.getAttribute('data-before');
@@ -164,6 +175,8 @@
       es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
     }, { threshold: .12 });
     els.forEach(function (el) { io.observe(el); });
+    // failsafe: never let content stay invisible if the observer stalls
+    setTimeout(function () { els.forEach(function (el) { el.classList.add('in'); }); }, 1500);
   })();
 
   /* ---------- WHATSAPP CHAT WIDGET ---------- */
