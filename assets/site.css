@@ -155,6 +155,13 @@ h1,h2,h3,h4{font-family:'AmpSans','Archivo',sans-serif;margin:0;line-height:1.08
 .svc::after{content:"";position:absolute;left:0;top:0;height:3px;width:0;background:var(--brass);transition:width .3s}
 .svc:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:#d4d8de}
 .svc:hover::after{width:100%}
+/* image-backed service cards (home featured grid) */
+.svc-img{padding:0;overflow:hidden}
+.svc-photo{aspect-ratio:3/2;overflow:hidden;background:var(--paper-2)}
+.svc-photo img{width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .55s ease}
+.svc-img:hover .svc-photo img{transform:scale(1.05)}
+.svc-body{flex:1;display:flex;flex-direction:column;padding:22px 22px 24px}
+.svc-img::after{z-index:2}
 .svc-ic{width:60px;height:60px;border-radius:15px;background:linear-gradient(150deg,var(--slate),var(--ink));color:var(--brass-hi);display:grid;place-items:center;margin-bottom:20px;box-shadow:0 12px 26px -12px rgba(20,23,29,.55),inset 0 0 0 1px rgba(205,170,104,.22);transition:background .25s,color .25s,transform .25s}
 .svc-ic svg{width:30px;height:30px;stroke-width:2.3}
 .svc:hover .svc-ic{background:linear-gradient(150deg,var(--brass-hi),var(--brass-lo));color:#fff;transform:translateY(-2px) scale(1.04)}
@@ -579,6 +586,8 @@ figure.tv{margin:0}
   /* keep services + areas two-up to cut endless scrolling — compact the cards so a pair fits */
   .svc-grid,.svc-grid.cols-3{grid-template-columns:repeat(2,1fr);gap:12px;margin-top:30px}
   .svc{padding:16px 14px;border-radius:13px}
+  .svc-img{padding:0}
+  .svc-body{padding:13px 13px 15px}
   .svc-ic{width:44px;height:44px;border-radius:12px;margin-bottom:13px}
   .svc-ic svg{width:23px;height:23px}
   .svc h3{font-size:14.5px;margin-bottom:5px}
