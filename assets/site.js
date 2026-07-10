@@ -24,6 +24,18 @@
     }
   }
 
+  /* ---------- ANALYTICS: conversion events (GA4) ---------- */
+  (function () {
+    function track(name, params) { if (window.gtag) window.gtag('event', name, params || {}); }
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest ? e.target.closest('a') : null;
+      if (!a) return;
+      var href = a.getAttribute('href') || '';
+      if (href.indexOf('tel:') === 0) track('click_to_call', { phone: href.replace('tel:', '') });
+      else if (/wa\.me|api\.whatsapp|whatsapp/i.test(href)) track('click_whatsapp');
+    }, true);
+  })();
+
   /* ---------- HERO SLIDER ---------- */
   (function () {
     var slides = [].slice.call(document.querySelectorAll('.hero .slide'));
@@ -160,6 +172,7 @@
       if (val('service')) txt += '\nService: ' + val('service');
       if (val('message')) txt += '\nDetails: ' + val('message');
       txt += '\n\n(Sent from your website)';
+      if (window.gtag) gtag('event', 'generate_lead', { method: 'whatsapp_form' });
       window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(txt), '_blank');
       show('ok', 'Opening WhatsApp with your details ready to send — just press send. Prefer to call? Our number is above.');
       form.reset();
