@@ -24,16 +24,80 @@
     }
   }
 
-  /* ---------- ANALYTICS: conversion events (GA4) ---------- */
+  /* ---------- LEAD CAPTURE -> Google Sheet (Apps Script web app) ----------
+     Logs every lead to the "Leads" tab and emails a notification. The
+     contact form is WhatsApp-only (no action, nothing POSTed anywhere), so
+     this capture is the ONLY record a lead ever happened.
+     Exposes window.yrdLead(payload) for the hooks further down. */
+  (function () {
+    var ENDPOINT = window.YRD_LEAD_ENDPOINT || '';
+
+    /* Per-visit id so the endpoint can de-duplicate repeat click events —
+       one visitor tapping "call" four times is one lead, not four. */
+    var sid;
+    try {
+      sid = sessionStorage.getItem('yrd_sid');
+      if (!sid) {
+        sid = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+        sessionStorage.setItem('yrd_sid', sid);
+      }
+    } catch (err) { sid = 'nostore'; }
+
+    function device() {
+      var w = window.innerWidth || 0;
+      return w < 700 ? 'Mobile' : (w < 1024 ? 'Tablet' : 'Desktop');
+    }
+
+    window.yrdLead = function (payload) {
+      if (!ENDPOINT) return;
+      payload = payload || {};
+      payload.sid = sid;
+      payload.page = location.pathname + (location.search || '');
+      payload.referrer = document.referrer || '(direct)';
+      payload.device = device();
+
+      /* DO NOT swap this for navigator.sendBeacon.
+         Apps Script answers /exec with a cross-origin 302 to
+         script.googleusercontent.com. sendBeacon will not follow that
+         redirect — it silently drops the request while still returning
+         true, so the lead never reaches the sheet and nothing appears to
+         be wrong. fetch + keepalive survives both the redirect and the
+         page unload / WhatsApp handoff that happens moments later.
+         text/plain avoids a CORS preflight Apps Script can't answer. */
+      try {
+        fetch(ENDPOINT, {
+          method: 'POST',
+          mode: 'no-cors',
+          keepalive: true,
+          headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+          body: JSON.stringify(payload)
+        })['catch'](function () { /* never let capture break the journey */ });
+      } catch (err) { /* ditto */ }
+    };
+  })();
+
+  /* ---------- ANALYTICS: conversion events (GA4) + lead capture ---------- */
   (function () {
     function track(name, params) { if (window.gtag) window.gtag('event', name, params || {}); }
     document.addEventListener('click', function (e) {
       var a = e.target.closest ? e.target.closest('a') : null;
       if (!a) return;
       var href = a.getAttribute('href') || '';
-      if (href.indexOf('tel:') === 0) track('click_to_call', { phone: href.replace('tel:', '') });
-      else if (/wa\.me|api\.whatsapp|whatsapp/i.test(href)) track('click_whatsapp');
+      if (href.indexOf('tel:') === 0) {
+        track('click_to_call', { phone: href.replace('tel:', '') });
+        if (window.yrdLead) window.yrdLead({ type: 'call', phone: href.replace('tel:', '') });
+      } else if (/wa\.me|api\.whatsapp|whatsapp/i.test(href)) {
+        track('click_whatsapp');
+        if (window.yrdLead) window.yrdLead({ type: 'whatsapp' });
+      }
     }, true);
+
+    /* The floating widget button opens the chat panel rather than linking
+       out, so the delegated <a> handler above never sees it. */
+    var fab = document.getElementById('waFab');
+    if (fab) fab.addEventListener('click', function () {
+      if (window.yrdLead) window.yrdLead({ type: 'whatsapp', message: 'Opened WhatsApp widget' });
+    });
   })();
 
   /* ---------- HERO SLIDER ---------- */
@@ -173,6 +237,19 @@
       if (val('message')) txt += '\nDetails: ' + val('message');
       txt += '\n\n(Sent from your website)';
       if (window.gtag) gtag('event', 'generate_lead', { method: 'whatsapp_form' });
+      /* Capture BEFORE the WhatsApp handoff and before form.reset() below:
+         the visitor may never press send in WhatsApp, but this is still a
+         real enquiry and must be recorded either way. */
+      if (window.yrdLead) window.yrdLead({
+        type: 'form',
+        name: name,
+        phone: phone,
+        email: val('email'),
+        area: val('area'),
+        service: val('service'),
+        message: val('message'),
+        botcheck: (hp && hp.checked) ? 1 : ''
+      });
       window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(txt), '_blank');
       show('ok', 'Opening WhatsApp with your details ready to send — just press send. Prefer to call? Our number is above.');
       form.reset();
