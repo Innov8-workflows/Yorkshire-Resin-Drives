@@ -43,18 +43,25 @@
       }
     } catch (err) { sid = 'nostore'; }
 
-    function device() {
-      var w = window.innerWidth || 0;
-      return w < 700 ? 'Mobile' : (w < 1024 ? 'Tablet' : 'Desktop');
-    }
+    /* Where on the page the click happened -> the Sheet's Source column,
+       so "3 calls from the bottom CTA" is answerable. */
+    window.yrdWhere = function (el) {
+      if (!el || !el.closest) return 'page';
+      if (el.closest('.wa-widget') || el.closest('.wa-fab')) return 'whatsapp widget';
+      if (el.closest('.nav')) return 'nav';
+      if (el.closest('#quoteForm') || el.closest('.contact-grid')) return 'contact form';
+      if (el.closest('.fcta')) return 'bottom CTA';
+      if (el.closest('.hero') || el.closest('.subhero')) return 'hero';
+      if (el.closest('.trust')) return 'trust bar';
+      if (el.closest('.footer')) return 'footer';
+      return 'page';
+    };
 
     window.yrdLead = function (payload) {
       if (!ENDPOINT) return;
       payload = payload || {};
       payload.sid = sid;
-      payload.page = location.pathname + (location.search || '');
-      payload.referrer = document.referrer || '(direct)';
-      payload.device = device();
+      payload.page = location.pathname || '/';
 
       /* DO NOT swap this for navigator.sendBeacon.
          Apps Script answers /exec with a cross-origin 302 to
@@ -85,10 +92,11 @@
       var href = a.getAttribute('href') || '';
       if (href.indexOf('tel:') === 0) {
         track('click_to_call', { phone: href.replace('tel:', '') });
-        if (window.yrdLead) window.yrdLead({ type: 'call', phone: href.replace('tel:', '') });
+        if (window.yrdLead) window.yrdLead({
+          type: 'Call click', phone: href.replace('tel:', ''), source: window.yrdWhere(a) });
       } else if (/wa\.me|api\.whatsapp|whatsapp/i.test(href)) {
         track('click_whatsapp');
-        if (window.yrdLead) window.yrdLead({ type: 'whatsapp' });
+        if (window.yrdLead) window.yrdLead({ type: 'WhatsApp click', source: window.yrdWhere(a) });
       }
     }, true);
 
@@ -96,7 +104,7 @@
        out, so the delegated <a> handler above never sees it. */
     var fab = document.getElementById('waFab');
     if (fab) fab.addEventListener('click', function () {
-      if (window.yrdLead) window.yrdLead({ type: 'whatsapp', message: 'Opened WhatsApp widget' });
+      if (window.yrdLead) window.yrdLead({ type: 'WhatsApp click', source: 'whatsapp widget' });
     });
   })();
 
@@ -241,13 +249,14 @@
          the visitor may never press send in WhatsApp, but this is still a
          real enquiry and must be recorded either way. */
       if (window.yrdLead) window.yrdLead({
-        type: 'form',
+        type: 'Quote form',
         name: name,
         phone: phone,
         email: val('email'),
         area: val('area'),
         service: val('service'),
-        message: val('message'),
+        details: val('message'),
+        source: 'contact form',
         botcheck: (hp && hp.checked) ? 1 : ''
       });
       window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(txt), '_blank');
