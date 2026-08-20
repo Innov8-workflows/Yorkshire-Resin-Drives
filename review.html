@@ -46,11 +46,9 @@ body{font-family:'Inter',system-ui,-apple-system,sans-serif;color:var(--text);li
 .card{width:100%;max-width:560px;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 24px 60px -20px rgba(20,23,29,.55),0 4px 12px rgba(20,23,29,.09)}
 .card-head{position:relative;padding:56px 28px 30px;text-align:center;color:#fff;overflow:hidden;background:var(--ink)}
 .head-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
-.head-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(20,23,29,.42) 0%,rgba(20,23,29,.60) 50%,rgba(20,23,29,.86) 80%,rgba(20,23,29,.97) 100%)}
-.brandmark{position:relative;z-index:2;display:inline-flex;flex-direction:column;align-items:center;line-height:1}
-.brandmark b{font-family:'AmpSans','Archivo',sans-serif;font-weight:900;font-size:clamp(1.85rem,7.4vw,2.5rem);letter-spacing:.045em;text-transform:uppercase;color:#fff;text-shadow:0 4px 22px rgba(0,0,0,.6)}
-.brandmark span{margin-top:8px;font-family:'AmpSans','Archivo',sans-serif;font-weight:700;font-size:clamp(.66rem,2.5vw,.8rem);letter-spacing:.3em;text-transform:uppercase;color:var(--brass-hi);text-shadow:0 2px 12px rgba(0,0,0,.6)}
-.brandmark::after{content:"";width:54px;height:2px;background:var(--brass);margin-top:16px;border-radius:2px}
+.head-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(20,23,29,.29) 0%,rgba(20,23,29,.42) 50%,rgba(20,23,29,.60) 80%,rgba(20,23,29,.68) 100%)}
+.logo-badge{position:relative;z-index:2;display:inline-flex}
+.logo-badge img{width:clamp(132px,34vw,172px);height:auto;aspect-ratio:1;object-fit:cover;border-radius:50%;box-shadow:0 0 0 1px rgba(205,170,104,.34),0 14px 34px rgba(0,0,0,.55);display:block}
 .biz-tag{position:relative;z-index:2;font-family:'AmpSans','Archivo',sans-serif;font-size:.74rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.92);text-shadow:0 1px 10px rgba(0,0,0,.55);margin-top:16px}
 .card-body{padding:34px 30px 30px;text-align:center}
 .stars{font-size:1.6rem;letter-spacing:6px;color:var(--gold);line-height:1;margin-bottom:18px}
@@ -95,7 +93,7 @@ h1{font-family:'AmpSans','Archivo',sans-serif;font-weight:900;font-size:2.4rem;l
         <source src="assets/img/hero-01.mp4" type="video/mp4">
       </video>
       <div class="head-overlay" aria-hidden="true"></div>
-      <div class="brandmark"><b>Yorkshire Resin</b><span>Driveways &amp; Patios</span></div>
+      <div class="logo-badge"><img src="assets/img/logo-badge.jpg" alt="Yorkshire Resin Drives logo" width="480" height="472"></div>
       <p class="biz-tag">Resin Driveway Specialists &middot; Ilkley &amp; West Yorkshire</p>
     </header>
     <div class="card-body">
