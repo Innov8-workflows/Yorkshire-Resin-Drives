@@ -1,12 +1,8 @@
-/* ===================================================================
-   Yorkshire Resin Drives — shared behaviour
-   Every feature guards on the presence of its markup, so one file
-   safely drives every page.
-   =================================================================== */
+
+
 (function () {
   'use strict';
 
-  /* ---------- NAV ---------- */
   var nav = document.getElementById('nav');
   var burger = document.getElementById('burger');
   if (nav) {
@@ -24,16 +20,9 @@
     }
   }
 
-  /* ---------- LEAD CAPTURE -> Google Sheet (Apps Script web app) ----------
-     Logs every lead to the "Leads" tab and emails a notification. The
-     contact form is WhatsApp-only (no action, nothing POSTed anywhere), so
-     this capture is the ONLY record a lead ever happened.
-     Exposes window.yrdLead(payload) for the hooks further down. */
   (function () {
     var ENDPOINT = window.YRD_LEAD_ENDPOINT || '';
 
-    /* Per-visit id so the endpoint can de-duplicate repeat click events —
-       one visitor tapping "call" four times is one lead, not four. */
     var sid;
     try {
       sid = sessionStorage.getItem('yrd_sid');
@@ -43,8 +32,6 @@
       }
     } catch (err) { sid = 'nostore'; }
 
-    /* Where on the page the click happened -> the Sheet's Source column,
-       so "3 calls from the bottom CTA" is answerable. */
     window.yrdWhere = function (el) {
       if (!el || !el.closest) return 'page';
       if (el.closest('.wa-widget') || el.closest('.wa-fab')) return 'whatsapp widget';
@@ -63,14 +50,6 @@
       payload.sid = sid;
       payload.page = location.pathname || '/';
 
-      /* DO NOT swap this for navigator.sendBeacon.
-         Apps Script answers /exec with a cross-origin 302 to
-         script.googleusercontent.com. sendBeacon will not follow that
-         redirect — it silently drops the request while still returning
-         true, so the lead never reaches the sheet and nothing appears to
-         be wrong. fetch + keepalive survives both the redirect and the
-         page unload / WhatsApp handoff that happens moments later.
-         text/plain avoids a CORS preflight Apps Script can't answer. */
       try {
         fetch(ENDPOINT, {
           method: 'POST',
@@ -78,12 +57,11 @@
           keepalive: true,
           headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
           body: JSON.stringify(payload)
-        })['catch'](function () { /* never let capture break the journey */ });
-      } catch (err) { /* ditto */ }
+        })['catch'](function () {   });
+      } catch (err) {   }
     };
   })();
 
-  /* ---------- ANALYTICS: conversion events (GA4) + lead capture ---------- */
   (function () {
     function track(name, params) { if (window.gtag) window.gtag('event', name, params || {}); }
     document.addEventListener('click', function (e) {
@@ -100,15 +78,12 @@
       }
     }, true);
 
-    /* The floating widget button opens the chat panel rather than linking
-       out, so the delegated <a> handler above never sees it. */
     var fab = document.getElementById('waFab');
     if (fab) fab.addEventListener('click', function () {
       if (window.yrdLead) window.yrdLead({ type: 'WhatsApp click', source: 'whatsapp widget' });
     });
   })();
 
-  /* ---------- HERO SLIDER ---------- */
   (function () {
     var slides = [].slice.call(document.querySelectorAll('.hero .slide'));
     var dotsWrap = document.getElementById('dots');
@@ -130,18 +105,16 @@
     paint(); reset();
   })();
 
-  /* ---------- HERO VIDEO (load only on larger screens; mobile keeps the poster for speed) ---------- */
   (function () {
     var hv = document.querySelectorAll('.hero-vid');
     if (!hv.length) return;
-    if (!window.matchMedia('(min-width:701px)').matches) return; // phones stay on the poster image — no multi-MB video download
+    if (!window.matchMedia('(min-width:701px)').matches) return;
     hv.forEach(function (v) {
       var src = v.getAttribute('data-src');
       if (src && !v.getAttribute('src')) { v.setAttribute('src', src); var p = v.play(); if (p && p.catch) p.catch(function () {}); }
     });
   })();
 
-  /* ---------- BEFORE / AFTER SLIDERS (all on page) ---------- */
   document.querySelectorAll('.ba').forEach(function (ba) {
     var before = ba.getAttribute('data-before');
     var after = ba.getAttribute('data-after');
@@ -172,7 +145,6 @@
     ba.addEventListener('click', function (e) { if (!dragging) setPos(e.clientX); });
   });
 
-  /* ---------- TRANSFORMATION VIDEOS (muted autoplay in view) ---------- */
   (function () {
     var vids = document.querySelectorAll('.tv-vid');
     if (!vids.length || !('IntersectionObserver' in window)) return;
@@ -186,7 +158,6 @@
     vids.forEach(function (v) { v.muted = true; io.observe(v); });
   })();
 
-  /* ---------- GALLERY LIGHTBOX ---------- */
   (function () {
     var lb = document.getElementById('lb');
     if (!lb) return;
@@ -206,7 +177,6 @@
     addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
   })();
 
-  /* ---------- FAQ ACCORDION ---------- */
   document.querySelectorAll('.faq-item').forEach(function (item) {
     var q = item.querySelector('.faq-q');
     var a = item.querySelector('.faq-a');
@@ -218,7 +188,6 @@
     });
   });
 
-  /* ---------- CONTACT / QUOTE FORM -> WhatsApp ---------- */
   (function () {
     var form = document.getElementById('quoteForm');
     if (!form) return;
@@ -245,9 +214,7 @@
       if (val('message')) txt += '\nDetails: ' + val('message');
       txt += '\n\n(Sent from your website)';
       if (window.gtag) gtag('event', 'generate_lead', { method: 'whatsapp_form' });
-      /* Capture BEFORE the WhatsApp handoff and before form.reset() below:
-         the visitor may never press send in WhatsApp, but this is still a
-         real enquiry and must be recorded either way. */
+
       if (window.yrdLead) window.yrdLead({
         type: 'Quote form',
         name: name,
@@ -265,7 +232,6 @@
     });
   })();
 
-  /* ---------- REVEAL ON SCROLL ---------- */
   (function () {
     var els = document.querySelectorAll('.reveal');
     if (!els.length) return;
@@ -274,11 +240,10 @@
       es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
     }, { threshold: .12 });
     els.forEach(function (el) { io.observe(el); });
-    // failsafe: never let content stay invisible if the observer stalls
+
     setTimeout(function () { els.forEach(function (el) { el.classList.add('in'); }); }, 1500);
   })();
 
-  /* ---------- WHATSAPP CHAT WIDGET ---------- */
   (function () {
     var w = document.getElementById('waWidget');
     if (!w) return;
@@ -296,7 +261,6 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') set(false); });
   })();
 
-  /* ---------- REVIEWS SLIDER ---------- */
   document.querySelectorAll('.rev-slider').forEach(function (slider) {
     var track = slider.querySelector('.rev-track');
     if (!track || !track.children.length) return;
@@ -324,7 +288,7 @@
       }
       paint();
     }
-    /* auto-slide */
+
     var AUTO = 4500, timer = null;
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     function tick() {
@@ -348,7 +312,6 @@
     start();
   });
 
-  /* ---------- CURRENT YEAR ---------- */
   var yr = document.getElementById('yr');
   if (yr) yr.textContent = new Date().getFullYear();
 })();

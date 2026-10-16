@@ -22,7 +22,7 @@
 <meta name="twitter:description" content="Enjoyed your new driveway? Leave a quick Google or Facebook review &mdash; it only takes 30 seconds.">
 <meta name="twitter:image" content="https://yorkshireresindrives.com/assets/img/og-card.jpg">
 <meta name="theme-color" content="#14171D">
-<!-- Google tag (gtag.js) -->
+
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-V3LBHX6JCS"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -35,8 +35,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* Archivo's own ampersand is a stylised display glyph; route ONLY U+0026 to a
-   normal system sans so "DRIVEWAYS & PATIOS" reads properly. */
+
 @font-face{font-family:'AmpSans';src:local('Arial'),local('Helvetica Neue'),local('Segoe UI');unicode-range:U+0026}
 :root{--ink:#14171D;--charcoal:#1B1F27;--brass:#B7964F;--brass-hi:#CDAA68;--brass-lo:#9c7d3f;--paper:#F5F6F8;--text:#14171D;--muted:#5B6470;--line:#E3E6EA;--gold:#E8A23D;--facebook:#1877f2}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -83,9 +82,7 @@ h1{font-family:'AmpSans','Archivo',sans-serif;font-weight:900;font-size:2.4rem;l
 .card-foot .credit{display:block;margin-top:6px;color:rgba(152,161,173,.62);font-size:.72rem}
 .card-foot .credit a{color:#98a1ad;text-decoration:none}
 @media(max-width:520px){
-  /* Phone: the Google button is the whole point of this page, so everything
-     above it is tightened to pull it above the fold. Measured on 390x844 it
-     moves from 780px down to ~590px, which clears Messenger/Safari chrome. */
+
   body{padding:14px 12px;align-items:flex-start}
   .card{border-radius:16px}
   .card-head{padding:26px 18px 18px}
@@ -110,8 +107,7 @@ h1{font-family:'AmpSans','Archivo',sans-serif;font-weight:900;font-size:2.4rem;l
   .card-foot{padding:16px 18px;font-size:.74rem}
 }
 @media(max-width:380px){
-  /* Small Android: shave a little more so the Google button still clears
-     an in-app browser's top + bottom bars. */
+
   .card-head{padding:20px 16px 16px}
   .logo-badge img{width:92px}
   .biz-tag{font-size:.58rem;margin-top:10px}
@@ -159,8 +155,7 @@ h1{font-family:'AmpSans','Archivo',sans-serif;font-weight:900;font-size:2.4rem;l
     </footer>
   </main>
 <script>
-  /* Real review destinations. If either is ever blanked the button falls back
-     to a search, so it can never dead-end a customer. */
+
   var GOOGLE_REVIEW_URL   = "https://g.page/r/CTH86wMTBijYEBM/review";
   var FACEBOOK_REVIEW_URL = "https://www.facebook.com/profile.php?id=61560441286541&sk=reviews";
   function set(id, url, fallback){ var a = document.getElementById(id); a.href = (url && url.indexOf('PASTE_') !== 0) ? url : fallback; }
@@ -168,7 +163,7 @@ h1{font-family:'AmpSans','Archivo',sans-serif;font-weight:900;font-size:2.4rem;l
   set('fbBtn', FACEBOOK_REVIEW_URL, "https://www.facebook.com/search/top?q=" + encodeURIComponent("Yorkshire Resin Drives"));
   document.getElementById('year').textContent = new Date().getFullYear();
 </script>
-<!-- Lead logger -> Google Sheet (Apps Script) + GA4 -->
+
 <script>
 (function(){
   var LEAD_URL='https://script.google.com/macros/s/AKfycbzKd2aCuprZJvvhB9WyKe7VynnsRSXXOQQrlRmvGlSQHXxznimsBUY4VLO9nFc55EVL/exec';
@@ -178,9 +173,6 @@ h1{font-family:'AmpSans','Archivo',sans-serif;font-weight:900;font-size:2.4rem;l
        if(!sid){ sid = Date.now().toString(36)+Math.random().toString(36).slice(2,8); sessionStorage.setItem('yrd_sid', sid); }
   }catch(e){ sid='nostore'; }
 
-  /* NEVER navigator.sendBeacon here - it silently drops the /exec cross-origin
-     302 while returning true, so leads vanish with no error anywhere.
-     fetch + keepalive + no-cors + text/plain is the only combination that works. */
   function sendLead(d){
     try{
       d.page = location.pathname || '/';
@@ -191,8 +183,6 @@ h1{font-family:'AmpSans','Archivo',sans-serif;font-weight:900;font-size:2.4rem;l
     }catch(e){}
   }
 
-  /* Capture phase, so the row is sent before the tel:/wa.me navigation
-     tears the page down. keepalive is what lets it survive unload. */
   document.addEventListener('click',function(e){
     var t=e.target; if(!t||!t.closest) return;
     var a=t.closest('a'); if(!a) return;
@@ -204,8 +194,7 @@ h1{font-family:'AmpSans','Archivo',sans-serif;font-weight:900;font-size:2.4rem;l
       sendLead({type:'WhatsApp click',source:'review page'});
       try{ if(typeof gtag==='function') gtag('event','click_whatsapp',{lead_source:'review page'}); }catch(e){}
     } else if(a.id==='googleBtn' || a.id==='fbBtn'){
-      /* Review click-throughs go to GA4 only - they are not enquiries and must
-         not pollute the Leads sheet. */
+
       try{ if(typeof gtag==='function') gtag('event','review_click',{method: a.id==='googleBtn' ? 'google' : 'facebook'}); }catch(e){}
     }
   },true);
